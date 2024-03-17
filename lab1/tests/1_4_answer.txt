@@ -1,0 +1,7 @@
+Eigenvalues: [3.73  1.921 9.349]
+Eigenvectors:
+x1 = [ 0.77389433  0.19789415 -0.60160241]
+x2 = [-0.51744913  0.74527756 -0.42048515]
+x3 = [0.36514922 0.63670972 0.67916624]
+Number of iterations: 6
+Dependence of iterations on e: 600.0
