@@ -1,0 +1,9 @@
+x1 by Newton: 2.4720764848421233
+x2 by Newton: 1.6996581577166385
+Number of iterations: 6
+Dependence: 6000.0
+
+x1 by iter: 2.4720764848416974
+x2 by iter: 1.6996581577155652
+Number of iterations: 1
+Dependence: 1000.0
