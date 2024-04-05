@@ -3,22 +3,23 @@ import sys
 import matplotlib.pyplot as plt
 
 
-def newton(x0, e):
+def newton(x0, equation, equation_vp, e):
     max_iter = 1000
 
     counter = 0
 
-    for _ in range(max_iter):
-        counter += 1
+    if (equation(x0) * equation_vp(x0)):
+        for _ in range(max_iter):
+            counter += 1
 
-        f_x = np.log(x0 + 1) - 2*x0**2 + 1
-        df_x = 1 / (x0 + 1) - 4*x0
-        x1 = x0 - f_x / df_x
+            f_x = np.log(x0 + 1) - 2 * x0 ** 2 + 1
+            df_x = 1 / (x0 + 1) - 4 * x0
+            x1 = x0 - f_x / df_x
 
-        if abs(x1 - x0) < e:
-            return x1, counter
+            if abs(x1 - x0) < e:
+                return x1, counter
 
-        x0 = x1
+            x0 = x1
 
     return x0, counter
 
@@ -32,7 +33,11 @@ def iter(x0, e):
 
         x1 = np.sqrt((np.log(x0 + 1) + 1) / 2)
 
-        if abs(x1 - x0) < e:
+        # x1_vp = 
+
+        q = 0.5
+
+        if (q / (1 - q)) * abs(x1 - x0) <= e:
             return x1, counter
 
         x0 = x1
@@ -60,13 +65,14 @@ def graf(eq1, eq2):
 def main():
     e = float(input())
 
-    # equation = lambda x: np.log(x + 1) - 2 * (x ** 2) + 1
+    equation = lambda x: np.log(x + 1) - 2 * (x ** 2) + 1
+    equation_vp = lambda x: -1 / ((x + 1) ** 2) - 4
     eq1 = lambda x: np.log(x + 1)
     eq2 = lambda x:  2 * (x ** 2) - 1
 
     # graf(eq1, eq2)
     
-    root_newton, counter_newton = newton(0.95, e)
+    root_newton, counter_newton = newton(0.95, equation, equation_vp, e)
     root_iter, counter_iter = iter(0.95, e)
 
     file_name = sys.argv[1]
@@ -75,10 +81,8 @@ def main():
     with open(output_file_name, "w") as output_file:
         output_file.write(f"x by Newton: {root_newton}\n")
         output_file.write(f"Number of iterations: {counter_newton}\n")
-        output_file.write(f"Dependence: {counter_newton / e}\n")
         output_file.write(f"x by iter: {root_iter}\n")
         output_file.write(f"Number of iterations: {counter_iter}\n")
-        output_file.write(f"Dependence: {counter_iter / e}\n")
 
     print("Результаты записаны в файл:", output_file_name)
 

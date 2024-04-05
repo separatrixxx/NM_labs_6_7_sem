@@ -43,64 +43,7 @@ def yakobi(A, epsilon, n, iterations):
 
     return eigenvalues, eigenvectors, iterations
 
-# Первое, не очень хорошее решение
-#
-# def yakobi(A, e, n, iter):
-#     Ux = []
-#     A1 = A
-#     t = 10
-
-#     while t ** 1/2 > e:
-#         t = 0
-#         a_max = -sys.maxsize - 1
-#         ji = [0, 0]
-#         U = np.eye(n)
-
-#         for i in range(n):
-#             for j in range(i):
-#                 if i != j and A1[i][j] > a_max:
-#                     a_max = A1[i][j]
-#                     ji = [j, i]
-
-#         phi = math.atan((2 * a_max) / (A1[ji[0]][ji[0]] - A1[ji[1]][ji[1]])) / 2
-#         U[ji[0]][ji[0]] = math.cos(phi)
-#         U[ji[1]][ji[1]] = math.cos(phi)
-#         U[ji[0]][ji[1]] = -math.sin(phi)
-#         U[ji[1]][ji[0]] = math.sin(phi)
-
-#         A1 = np.round(np.dot(np.dot(transpouse(U), A1), U), decimals=3)
-
-#         t = 0
-
-#         for i in range(n):
-#             for j in range(i):
-#                 if i != j:
-#                     t += A1[i][j] ** 2
-
-#         Ux.append(U)
-#         iter += 1
-            
-#     h = np.ndarray(n)
-
-#     for i in range(n):
-#         h[i] = A1[i][i]
-
-#     X = Ux[0]
-
-#     for i in range(len(Ux) - 1):
-#         X = np.dot(X, Ux[i + 1])
-
-#     X_x = []
-    
-#     for i in range(n):
-#         x = np.ndarray(n)
-
-#         for j in range(n):
-#             x[j] = X[j][i]
-
-#         X_x.append(x)
-
-#     return h, X_x, iter
+# проверка !!!
 
 def main():
     e = float(input())

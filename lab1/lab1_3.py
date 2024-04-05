@@ -2,11 +2,21 @@ import numpy as np
 import sys
 
 
+INF = 10e9
+
 def chebyshev_norm(vec):
     norm = 0
 
     for i in range(len(vec)):
         norm = max(norm, abs(vec[i]))
+
+    return norm
+
+def mat_norm(mat) -> int:
+    norm = -INF
+
+    for row in mat:
+        norm = max(norm, sum(map(abs, row)))
 
     return norm
 
@@ -54,15 +64,16 @@ def iterations(A, b, e, n):
 
 def zeydel(A, b, e, n):
     A1 = np.zeros((n, n))
-    b1 = np.ndarray(n)
-    x0 = np.ndarray(n)
-    x = np.ndarray(n)
+    b1 = np.zeros(n)
+    x0 = np.zeros(n)
+    x = np.zeros(n)
+    eps_k = 1
 
     for i in range(n):
         b1[i] = b[i] / A[i][i]
         for j in range(n):
-            if (i != j):
-                A1[i][j] -= A[i][j] / A[i][i]
+            if i != j:
+                A1[i][j] = -A[i][j] / A[i][i]
 
     num = 0
 
@@ -73,7 +84,9 @@ def zeydel(A, b, e, n):
         for i in range(n):
             x[i] = b1[i] + np.dot(A1[i, :], x)
 
-        if chebyshev_norm(x - x0) < e:
+        eps_k = mat_norm(A) / (1 - mat_norm(A1)) * chebyshev_norm(x - x0)
+
+        if eps_k < e:
             break
 
     return (x, num)

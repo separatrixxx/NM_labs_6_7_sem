@@ -38,6 +38,8 @@ def iter(x0, a, epsilon):
         x1_new = np.sqrt(a ** 2 - x2 ** 2)
         x2_new = np.log(x1_new + a)
 
+        # выход другой !!!
+
         if np.sqrt((x1_new - x1) ** 2 + (x2_new - x2) ** 2) < epsilon:
             return np.array([x1_new, x2_new]), counter
         
@@ -77,7 +79,7 @@ def main():
 
     # graf(eq1, eq1, a=1, x2_range=(-2, 2))
 
-    x0_1 = np.array([0.7, 0.9])
+    x0_1 = np.array([0.1, 10])
 
     root_newton, counter_newton = newton(x0_1, a, e)
     root_iter, counter_iter = iter(x0_1, a, e)
@@ -93,7 +95,6 @@ def main():
         output_file.write(f"x1 by iter: {root_iter[0]}\n")
         output_file.write(f"x2 by iter: {root_iter[1]}\n")
         output_file.write(f"Number of iterations: {counter_iter}\n")
-        output_file.write(f"Dependence: {counter_iter / e}\n")
 
     print("Результаты записаны в файл:", output_file_name)
 

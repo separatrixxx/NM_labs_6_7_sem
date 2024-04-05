@@ -1,4 +1,4 @@
 Solution by iteration method: [6.99997288 1.00001139 6.99997108 6.00000749]
 Number of iterations: 13
-Seidel's solution: [7.0000299  1.00002376 6.99999757 5.99999542]
-Number of iterations: 8
+Seidel's solution: [7.00000019 0.99999998 7.00000014 5.99999995]
+Number of iterations: 11
