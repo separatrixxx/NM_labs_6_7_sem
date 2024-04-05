@@ -32,10 +32,9 @@ def iter(x0, e):
         counter += 1
 
         x1 = np.sqrt((np.log(x0 + 1) + 1) / 2)
+        x1_vp = lambda x: np.sqrt(2) / (4 * np.sqrt(np.log(x + 1) + 1) * (x + 1))
 
-        # x1_vp = 
-
-        q = 0.5
+        q = x1_vp(x0)
 
         if (q / (1 - q)) * abs(x1 - x0) <= e:
             return x1, counter
