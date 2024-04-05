@@ -8,7 +8,7 @@ def newton(x0, equation, equation_vp, e):
 
     counter = 0
 
-    if (equation(x0) * equation_vp(x0)):
+    if (equation(x0) * equation_vp(x0) > 0):
         for _ in range(max_iter):
             counter += 1
 
@@ -32,9 +32,9 @@ def iter(x0, e):
         counter += 1
 
         x1 = np.sqrt((np.log(x0 + 1) + 1) / 2)
-        x1_vp = lambda x: np.sqrt(2) / (4 * np.sqrt(np.log(x + 1) + 1) * (x + 1))
+        x1_pp = lambda x: np.sqrt(2) / (4 * np.sqrt(np.log(x + 1) + 1) * (x + 1))
 
-        q = x1_vp(x0)
+        q = x1_pp(x0)
 
         if (q / (1 - q)) * abs(x1 - x0) <= e:
             return x1, counter
