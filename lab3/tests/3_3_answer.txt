@@ -1,0 +1,6 @@
+Least squares method, 1st degree
+P(x) =', format_polynom(f'0.0055+1.1067x)
+Sum of squared errors = 0.003941661910476192
+Least squares method, 2nd degree
+P(x) =  - 0.0070 + 1.1019x + 0.0481x^2
+Sum of squared errors = 0.003941661910476192

@@ -43,8 +43,6 @@ def yakobi(A, epsilon, n, iterations):
 
     return eigenvalues, eigenvectors, iterations
 
-# проверка !!!
-
 def main():
     e = float(input())
     n = int(input())
