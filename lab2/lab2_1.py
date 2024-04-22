@@ -34,7 +34,13 @@ def iter(x0, e):
         x1 = np.sqrt((np.log(x0 + 1) + 1) / 2)
         x1_pp = lambda x: np.sqrt(2) / (4 * np.sqrt(np.log(x + 1) + 1) * (x + 1))
 
-        q = x1_pp(x0)
+        q = -100
+
+        s = -0.5
+
+        while s < 1:
+            q = max(x1_pp(s), q)
+            s += 0.001
 
         if (q / (1 - q)) * abs(x1 - x0) <= e:
             return x1, counter

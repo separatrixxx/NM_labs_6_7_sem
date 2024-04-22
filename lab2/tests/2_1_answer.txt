@@ -1,4 +1,4 @@
 x by Newton: 0.9070751750633594
 Number of iterations: 3
-x by iter: 0.9079569474476354
-Number of iterations: 2
+x by iter: 0.9131892937873438
+Number of iterations: 1

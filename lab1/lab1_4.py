@@ -59,7 +59,8 @@ def main():
         for i in range(len(X_x)):
             output_file.write(f"x{i + 1} = {X_x[i]}\n")
         output_file.write(f"Number of iterations: {iter}\n")
-        output_file.write(f"Dependence of iterations on e: {iter / e}\n")
+        for i in range(len(X_x)):
+            output_file.write(f"{np.dot(A, X_x[i]) - np.dot(X_x[i], h[i])}\n")
 
     print("Результаты записаны в файл:", output_file_name)
 
