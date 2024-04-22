@@ -21,7 +21,6 @@ def lagrange_with_check(f, x, test_point):
     else:
         return res1, err1
 
-
 def lagrange(f, x, test_point):
     y = [f(t) for t in x]
     assert len(x) == len(y)
@@ -46,7 +45,6 @@ def lagrange(f, x, test_point):
         polynom_test_value += y[i] * cur_enum_test / cur_denom
 
     return format_polynom(polynom_str), abs(polynom_test_value - test_point[1])
-
 
 def newton(f, x, test_point):
     y = [f(t) for t in x]
@@ -87,7 +85,6 @@ def main():
     x_ = float(input())
 
     equation = lambda x: np.arcsin(x)
-
 
     polynomL1, errorL1 = lagrange_with_check(equation, x_a, (x_, equation(x_)))
     polynomL2, errorL2 = lagrange_with_check(equation, x_b, (x_, equation(x_)))
