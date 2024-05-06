@@ -132,21 +132,7 @@ def newtonTest(f, x, test_point):
 
     return polynom_test_value
 
-def main():
-    x_a_str = input().strip().split()
-    x_b_str = input().strip().split()
-    
-    x_a = np.array([float(num) for num in x_a_str])
-    x_b = np.array([float(num) for num in x_b_str])
-    x_ = float(input())
-
-    equation = lambda x: np.arcsin(x)
-
-    polynomL1, errorL1, _ = lagrange(equation, x_a, (x_, equation(x_)))
-    polynomL2, errorL2, _ = lagrange(equation, x_b, (x_, equation(x_)))
-    polynomN1, errorN1, _ = newton(equation, x_a, (x_, equation(x_)))
-    polynomN2, errorN2, _ = newton(equation, x_b, (x_, equation(x_)))
-
+def test(x_a, equation):
     x1 = []
     n = 5
     k = -n
@@ -162,6 +148,23 @@ def main():
     plt.title('03-01')
     plt.legend()
     plt.show()
+
+def main():
+    x_a_str = input().strip().split()
+    x_b_str = input().strip().split()
+    
+    x_a = np.array([float(num) for num in x_a_str])
+    x_b = np.array([float(num) for num in x_b_str])
+    x_ = float(input())
+
+    equation = lambda x: np.arcsin(x)
+
+    polynomL1, errorL1, _ = lagrange(equation, x_a, (x_, equation(x_)))
+    polynomL2, errorL2, _ = lagrange(equation, x_b, (x_, equation(x_)))
+    polynomN1, errorN1, _ = newton(equation, x_a, (x_, equation(x_)))
+    polynomN2, errorN2, _ = newton(equation, x_b, (x_, equation(x_)))
+
+    test(x_a, equation)
 
     file_name = sys.argv[1]
 
