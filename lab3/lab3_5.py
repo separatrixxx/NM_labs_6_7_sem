@@ -18,7 +18,6 @@ def rectangle_trapeze(f, l, r, h, is_rectangle=True):
 
     return h*result
 
-
 def simpson(f, l, r, h):
     if l > r:
         return None
@@ -35,16 +34,14 @@ def simpson(f, l, r, h):
 
     return result * h / 3
 
-
-def runge_rombert(h1, h2, i1, i2, p):
-    return i1 + (i1 - i2) / ((h2 / h1)**p - 1)
+def runge_romberg(Fh, Fkh, k, p):
+    return (Fh - Fkh) / (k**p - 1)
 
 def main():
     x0 = float(input())
     xk = float(input())
     h1 = float(input())
     h2 = float(input())
-    p = float(input())
 
     equation = lambda x: 1 / (x ** 2 + 4)
 
@@ -54,9 +51,10 @@ def main():
     trapeze_h2 = rectangle_trapeze(equation, x0, xk, h2, False)
     simpson_h1 = simpson(equation, x0, xk, h1)
     simpson_h2 = simpson(equation, x0, xk, h2)
-    rectangle_runge_rombert = runge_rombert(h1, h2, rectangle_h1, rectangle_h2, p)
-    trapeze_runge_rombert = runge_rombert(h1, h2, trapeze_h1, trapeze_h2, p)
-    simpson_runge_rombert = runge_rombert(h1, h2, simpson_h1, simpson_h2, p)
+
+    rectangle_runge_rombert = runge_romberg(rectangle_h1, rectangle_h2, h2 / h1, 2)
+    trapeze_runge_rombert = runge_romberg(trapeze_h1, trapeze_h2, h2 / h1, 2)
+    simpson_runge_rombert = runge_romberg(simpson_h1, simpson_h2, h2 / h1, 2)
 
     file_name = sys.argv[1]
 
@@ -71,7 +69,7 @@ def main():
         output_file.write(f"Simpson method:\n")
         output_file.write(f"Step {h1}: {simpson_h1}\n")
         output_file.write(f"Step {h2}: {simpson_h2}\n")
-        output_file.write(f"Runge Robert method:\n")
+        output_file.write(f"Runge Roberg method:\n")
         output_file.write(f"Rectangle: {rectangle_runge_rombert}\n")
         output_file.write(f"Trapeze: {trapeze_runge_rombert}\n")
         output_file.write(f"Simpson: {simpson_runge_rombert}\n")

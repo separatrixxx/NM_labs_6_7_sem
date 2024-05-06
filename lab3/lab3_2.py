@@ -38,7 +38,6 @@ def tridiagonal_solve(A, b):
 
     return x
 
-
 def spline_interpolation(x_i, f_i, x_):
     assert len(x_i) == len(f_i)
 
@@ -79,7 +78,6 @@ def spline_interpolation(x_i, f_i, x_):
     y_test = s(a[i + 1], b[i + 1], c[i + 1], d[i + 1], x_ - x_i[i])
 
     return a, b, c, d, y_test
-
 
 def draw_plot(x_original, f_original, a, b, c, d):
     x, y = [], []

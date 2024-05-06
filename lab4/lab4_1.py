@@ -76,7 +76,6 @@ def runge_rombert(h1, h2, y1, y2, p):
         norm += (y1[i] - y2[i * 2]) ** 2
     return norm ** 0.5 / (2 ** p + 1)
 
-
 def error(y1, y2):
     assert len(y1) == len(y2)
     res = 0

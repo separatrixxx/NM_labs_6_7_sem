@@ -71,12 +71,10 @@ def least_squares(x, y, n):
 def p(coefs, x):
     return sum([c * x**i for i, c in enumerate(coefs)])
 
-
 def sum_squared_errors(x, y, ls_coefs):
     y_ls = [p(ls_coefs, x_i) for x_i in x]
 
     return sum((y_i - y_ls_i)**2 for y_i, y_ls_i in zip(y, y_ls))
-
 
 def draw_plot(x_i, y_i, ls1, ls2):
     plt.scatter(x_i, y_i)
@@ -103,7 +101,7 @@ def main():
     output_file_name = file_name.replace(".txt", "_answer.txt")
     with open(output_file_name, "w") as output_file:
         output_file.write(f"Least squares method, 1st degree\n")
-        output_file.write(f"P(x) =', format_polynom(f'{ls1[0]:.4f}+{ls1[1]:.4f}x)\n")
+        output_file.write(f"P(x) = {format_polynom(f'{ls1[0]:.4f}+{ls1[1]:.4f}x')}\n")
         output_file.write(f"Sum of squared errors = {sum_squared_errors(x_i, y_i, ls1)}\n")
         output_file.write(f"Least squares method, 2nd degree\n")
         output_file.write(f"P(x) = {format_polynom(f'{ls2[0]:.4f}+{ls2[1]:.4f}x+{ls2[2]:.4f}x^2')}\n")
