@@ -1,0 +1,6 @@
+Runge Romberg:
+Shooting: 1.6948173867605953
+Finite difference: 0.194535671241136
+Exact:
+Shooting: 39.74695314527433
+Finite difference: 36.7801000238389

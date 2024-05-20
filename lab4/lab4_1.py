@@ -13,20 +13,6 @@ def euler(f, g, y0, z0, borders, h):
         y.append(y[i] + h * g(x[i], y[i], z))
     return x, y
 
-def implicit_euler(f, y0, z0, borders, h):
-    l, r = borders
-    n = int((r - l) / h)
-    x = [i for i in np.arange(l, r + h, h)]
-    y = [y0]
-    z = [z0]
-    for i in range(1, n+1):
-        t_i = l + i * h
-        y_i = y[i-1] + h * z[i-1]
-        z_i = z[i-1] + h * f(t_i, y_i, z[i-1])
-        y.append(y_i)
-        z.append(z_i)
-    return x, y
-
 def runge_kutta(f, g, y0, z0, borders, h, return_z=False):
     l, r = borders
     x = [i for i in np.arange(l, r + h, h)]
@@ -98,11 +84,6 @@ def main():
     x_euler2, y_euler2 = euler(f, g, y0, dy0, borders, h_euler/2)
     plt.plot(x_euler2, y_euler2, label=f"Euler, h={h/2}")
 
-    x_i_euler, y_i_euler = implicit_euler(f, y0, dy0, borders, h)
-    plt.plot(x_i_euler, y_i_euler, label=f"Implicit Euler, h={h}")
-    x_i_euler2, y_i_euler2 = implicit_euler(f, y0, dy0, borders, h/2)
-    plt.plot(x_i_euler2, y_i_euler2, label=f"Implicit Euler, h={h/2}")
-
     x_runge, y_runge = runge_kutta(f, g, y0, dy0, borders, h)
     plt.plot(x_runge, y_runge, label=f"Runge Kutta, h={h}")
     x_runge2, y_runge2 = runge_kutta(f, g, y0, dy0, borders, h / 2)
@@ -132,17 +113,14 @@ def main():
     with open(output_file_name, "w") as output_file:
         output_file.write(f"h = {h}\n")
         output_file.write(f"Euler: {error(y_euler, y_exact_for_euler)}\n")
-        output_file.write(f"Implicit Euler: {error(y_i_euler, y_exact)}\n")
         output_file.write(f"Runge Kutta: {error(y_runge, y_exact)}\n")
         output_file.write(f"Adams: {error(y_adams, y_exact)}\n")
         output_file.write(f"h = {h/2}\n")
         output_file.write(f"Euler: {error(y_euler2, y_exact2_for_euler)}\n")
-        output_file.write(f"Implicit Euler: {error(y_i_euler2, y_exact2)}\n")
         output_file.write(f"Runge Kutta: {error(y_runge2, y_exact2)}\n")
         output_file.write(f"Adams: {error(y_adams2, y_exact2)}\n\n")
         output_file.write(f"Runge Romberg:\n")
         output_file.write(f"Euler: {runge_rombert(h, h / 2, y_euler, y_euler2, 4)}\n")
-        output_file.write(f"Implicit Euler: {runge_rombert(h, h/2, y_i_euler, y_i_euler2, 4)}\n")
         output_file.write(f"Runge Kutta: {runge_rombert(h, h / 2, y_runge, y_runge2, 4)}\n")
         output_file.write(f"Adams: {runge_rombert(h, h / 2, y_adams, y_adams2, 4)}\n")
 

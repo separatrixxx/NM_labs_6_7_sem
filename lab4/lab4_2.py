@@ -3,168 +3,179 @@ import sys
 import matplotlib.pyplot as plt
 
 
-def runge_kutta(ddy, borders, y0, z0, h):
-    x = np.arange(borders[0], borders[1] + h, h)
-    N = np.shape(x)[0]
-    y = np.zeros(N)
-    z = np.zeros(N)
+def runge_kutta_method(f, g, l, r, h, y0, z0):
+    n = int((r - l) / h) + 1
+    x = [0] * n
+    y = [0] * n
+    z = [0] * n
+    x[0] = l
     y[0] = y0
     z[0] = z0
-    for i in range(N-1):
-        K1 = h * z[i]
-        L1 = h * ddy(x[i], y[i], z[i])
-        K2 = h * (z[i] + 0.5 * L1)
-        L2 = h * ddy(x[i] + 0.5 * h, y[i] + 0.5 * K1, z[i] + 0.5 * L1)
-        K3 = h * (z[i] + 0.5 * L2)
-        L3 = h * ddy(x[i] + 0.5 * h, y[i] + 0.5 * K2, z[i] + 0.5 * L2)
-        K4 = h * (z[i] + L3)
-        L4 = h * ddy(x[i] + h, y[i] + K3, z[i] + L3)
-        delta_y = (K1 + 2 * K2 + 2 * K3 + K4) / 6
-        delta_z = (L1 + 2 * L2 + 2 * L3 + L4) / 6
-        y[i+1] = y[i] + delta_y
-        z[i+1] = z[i] + delta_z
-    return y, z
+    for i in range(n-1):
+        K1 = h * f(x[i], y[i], z[i])
+        L1 = h * g(x[i], y[i], z[i])
+        K2 = h * f(x[i] + h / 2, y[i] + K1 / 2, z[i] + L1 / 2)
+        L2 = h * g(x[i] + h / 2, y[i] + K1 / 2, z[i] + L1 / 2)
+        K3 = h * f(x[i] + h / 2, y[i] + K2 / 2, z[i] + L2 / 2)
+        L3 = h * g(x[i] + h / 2, y[i] + K2 / 2, z[i] + L2 / 2)
+        K4 = h * f(x[i] + h, y[i] + K3, z[i] + L3)
+        L4 = h * g(x[i] + h, y[i] + K3, z[i] + L3)
+        dy = (K1 + 2 * K2 + 2 * K3 + K4) / 6
+        dz = (L1 + 2 * L2 + 2 * L3 + L4) / 6
+        x[i + 1] = x[i] + h
+        y[i + 1] = y[i] + dy
+        z[i + 1] = z[i] + dz
+    return x, y, z
 
-def diff_left(bcondition, h, f):
-    return (bcondition['c'] - (bcondition['b'] / h) * f(h)) / (bcondition['a'] - (bcondition['b'] / h))
+def adams_method(f, g, l, r, h, y0, z0):
+    n = int((r - l) / h) + 1
+    x_start, y_start, z_start = runge_kutta_method(f, g, l, l + 4 * h, h, y0, z0)
+    x = [0] * n
+    y = [0] * n
+    z = [0] * n
+    x[:4] = x_start
+    y[:4] = y_start
+    z[:4] = z_start
+    for i in range(3, n-1):
+        x[i + 1] = x[i] + h
 
-def diff_right(bcondition, h, y):
-    return (bcondition['c'] + (bcondition['b'] / h) * y[-2]) / (bcondition['a'] + (bcondition['b'] / h))
+        y[i + 1] = y[i] + h / 24 * (55 * f(x[i], y[i], z[i]) - 59 * f(x[i - 1], y[i - 1], z[i - 1]) +
+                    37 * f(x[i - 2], y[i - 2], z[i - 2]) - 9 * f(x[i - 3], y[i - 3], z[i - 3]))
+        z[i + 1] = z[i] + h / 24 * (55 * g(x[i], y[i], z[i]) - 59 * g(x[i - 1], y[i - 1], z[i - 1]) +
+                    37 * g(x[i - 2], y[i - 2], z[i - 2]) - 9 * g(x[i - 3], y[i - 3], z[i - 3]))
 
-def solve(A, b):
-    res = shooting_method(A[0], A[1], A[2], A[3], A[4], A[5])
-    for i in range(len(res)):
-        res += 0.0005
+    return x, y, z
+
+def runge_romberg(y1, y2, k, p):
+    res = 0
+    c = 1 / (k ** p + 1)
+    for i in range(len(y1)):
+        res = max(res, c * abs(y1[i] - y2[i*k]))
     return res
 
-def shooting_method(ddy, borders, bcondition1, bcondition2, h, f):
-    y0 = diff_left(bcondition1, h, f)
-    eta1 = 0.5
-    eta2 = 2.0
-    resolve1 = runge_kutta(ddy, borders, y0, eta1, h)[0]
-    resolve2 = runge_kutta(ddy, borders, y0, eta2, h)[0]
-    Phi1 = resolve1[-1] - diff_right(bcondition2, h, resolve1)
-    Phi2 = resolve2[-1] - diff_right(bcondition2, h, resolve2)
-    while abs(Phi2 - Phi1) > h/10:
-        temp = eta2
-        eta2 = eta2 - (eta2 - eta1) / (Phi2 - Phi1) * Phi2
-        eta1 = temp
-        resolve1 = runge_kutta(ddy, borders, y0, eta1, h)[0]
-        resolve2 = runge_kutta(ddy, borders, y0, eta2, h)[0]
-        Phi1 = resolve1[-1] - diff_right(bcondition2, h, resolve1)
-        Phi2 = resolve2[-1] - diff_right(bcondition2, h, resolve2)
+def max_abs_error(y1, y2):
+    res = 0
+    for i in range(len(y1)):
+        res = max(res, abs(y1[i] - y2[i]))
+    return res
 
-    return runge_kutta(ddy, borders, y0, eta2, h)[0]
+def tridiagonal_solve(a, b, c, d) -> np.ndarray:
+    n = len(d)
+    p = np.ndarray(n, dtype=float)
+    q = np.ndarray(n, dtype=float)
+    x = np.ndarray(n, dtype=float)
 
-def finite_difference_method(ddy, f, bcondition1, bcondition2, equation, borders, h):
-    x = np.arange(borders[0], borders[1] + h, h)
-    N = np.shape(x)[0]
-    A = np.zeros((N, N))
-    a = [ddy, borders, bcondition1, bcondition2, h, f]
-    b = np.zeros(N)
-    A[0][0] = bcondition1['a'] - bcondition1['b']/h
-    A[0][1] = bcondition1['b']/h
-    b[0] = bcondition1['c']
-    for i in range(1, N-1):
-        A[i][i-1] = 1/h**2 - equation['p'](x[i])/(2*h)
-        A[i][i] = -2/h**2 + equation['q'](x[i])
-        A[i][i+1] = 1/h**2 + equation['p'](x[i])/(2*h)
-        b[i] = equation['f'](x[i])
-    A[N-1][N-2] = -bcondition2['b']/h
-    A[N-1][N-1] = bcondition2['a'] + bcondition2['b']/h
-    A = a
-    b[N-1] = bcondition2['c']
-    return solve(A, b)
+    p[0] = -c[0] / b[0]
+    q[0] = d[0] / b[0]
 
-def runge_rombert(y1, y2, h1, h2, p):
-    if h1 > h2:
-        k = int(h1 / h2)
-        y = np.zeros(np.shape(y1)[0])
-        for i in range(np.shape(y1)[0]):
-            y[i] = y2[i*k]+(y2[i*k]-y1[i])/(k**p-1)
-        return y
-    else:
-        k = int(h2 / h1)
-        y = np.zeros(np.shape(y2)[0])
-        for i in range(np.shape(y2)[0]):
-            y[i] = y1[i * k] + (y1[i * k] - y2[i]) / (k ** p - 1)
-        return y
-    
-def sqr_error(y, y_correct):
-    return np.sqrt(np.sum((y - y_correct) ** 2))
+    for i in range(1, n):
+        p[i] = -c[i] / (b[i] + a[i]*p[i-1])
+        q[i] = (d[i] - a[i]*q[i-1]) / (b[i] + a[i]*p[i-1])
+
+    x[-1] = q[-1]
+    for i in range(n-2, -1, -1):
+        x[i] = p[i] * x[i+1] + q[i]
+    return x
+
+def shooting_method(f, g, a, b, h, alpha, beta, delta, gamma, y0, y1, eta0, eta1, eps):
+    def get_z0(eta):
+        return (y0 - alpha * eta) / beta
+
+    while True:
+        _, y_s0, z_s0 = adams_method(f, g, a, b, h, eta0, get_z0(eta0))
+        x_s1, y_s1, z_s1 = adams_method(f, g, a, b, h, eta1, get_z0(eta1))
+
+        phi0 = delta * y_s0[-1] + gamma * z_s0[-1] - y1
+        phi1 = delta * y_s1[-1] + gamma * z_s1[-1] - y1
+
+        eta2 = eta1 - (eta1 - eta0) / (phi1 - phi0) * phi1
+
+        if abs(eta2 - eta1) < eps:
+            return x_s1, y_s1, z_s1
+
+        eta0, eta1 = eta1, eta2
+
+def finite_difference_method(f, p, q, l, r, h, alpha, beta, delta, gamma, y0_, y1_):
+    n = int((r - l) / h)
+    xk = [l + h * i for i in range(n+1)]
+    a, b, c, d = [0]*(n+1), [0]*(n+1), [0]*(n+1), [0]*(n+1)
+
+    b[0] = h * alpha - beta
+    c[0] = beta
+    d[0] = h * y0_
+    a[-1] = -gamma
+    b[-1] = h * delta + gamma
+    d[-1] = h * y1_
+    for i in range(1, n):
+        if xk[i] == 0:
+            a[i] = 1
+            b[i] = -2 + h**2 * q(xk[i])
+            c[i] = 1
+        else:
+            a[i] = 1 - p(xk[i]) * h / 2
+            b[i] = -2 + h**2 * q(xk[i])
+            c[i] = 1 + p(xk[i]) * h / 2
+        d[i] = h**2 * f(xk[i])
+
+    yk = tridiagonal_solve(a, b, c, d)
+    return xk, yk
 
 def main():   
-    bcondition1 = {
-        'a': int(input()),
-        'b': int(input()),
-        'c': int(input()),
-    }
+    f = lambda x, y, z: z
+    fx = lambda x: 0
+    g = lambda x, y, z: (-4 * x * z + 4 * y) / (2 * x + 1)
+    p = lambda x: 4 * x / (2 * x + 1) if 2 * x + 1 != 0 else 0
+    q = lambda x: -4 / (2 * x + 1) if 2 * x + 1 != 0 else 0
+    real_f = lambda x: 3 * x + np.exp(-2 * x)
 
-    bcondition2 = {
-        'a': int(input()),
-        'b': int(input()),
-        'c': int(input()),
-    }
-
-    borders = [int(input()), int(input())]
+    a = int(input())
+    b = int(input())
+    alpha = int(input())
+    beta = int(input())
+    delta = int(input())
+    gamma = int(input())
+    y0 = int(input())
+    y1 = int(input())
     h = float(input())
+    eps = float(input())
+    eta0 = float(input())
+    eta1 = float(input())
 
-    ddf = lambda x, y, dy: (-4 * x * dy + 4 * y) / (2 * x + 1)
-    f = lambda x: 3 * x + np.exp(-2 * x)
-    p = lambda x: 4 * x / (2 * x + 1)
-    q = lambda x: -4 / (2 * x + 1)
-    right_f = lambda x: 0
+    real_x = [a+i*h for i in range(int((b-a)/h)+1)]
+    real_y = list(map(real_f, real_x))
 
-    equation = {'p': p, 'q': q, 'f': right_f}
+    shooting_x1, shooting_y1, _ = shooting_method(f, g, a, b, h, alpha, beta, delta, gamma, y0, y1, eta0, eta1, eps)
+    _, shooting_y2, _ = shooting_method(f, g, a, b, h/2, alpha, beta, delta, gamma, y0, y1, eta0, eta1, eps)
+
+    finite_diff_x1, finite_diff_y1 = finite_difference_method(fx, p, q, a, b, h, alpha, beta, delta, gamma, y0, y1)
+    _, finite_diff_y2 = finite_difference_method(fx, p, q, a, b, h/2, alpha, beta, delta, gamma, y0, y1)
+
+    shooting_er_rr = runge_romberg(shooting_y1, shooting_y2, 2, 4)
+    finite_diff_er_rr = runge_romberg(finite_diff_y1, finite_diff_y2, 2, 4)
+
+    shooting_er_ma = max_abs_error(shooting_y1, real_y)
+    finite_diff_er_ma = max_abs_error(finite_diff_y1, real_y)
+    
+    plt.figure(figsize=(12, 7))
+    plt.plot(real_x, real_y, label="real")
+    plt.plot(shooting_x1, shooting_y1, label="shooting")
+    plt.plot(finite_diff_x1, finite_diff_y1, label="finite difference")
+    plt.grid()
+    plt.title('04-02')
+    plt.legend()
+    plt.show()
 
     file_name = sys.argv[1]
 
-    x = np.arange(borders[0], borders[1] + h, h)
-    y = f(x)
-    y1 = shooting_method(ddf, borders, bcondition1, bcondition2, h, f)
-    y2 = finite_difference_method(ddf, f, bcondition1, bcondition2, equation, borders, h)
+    output_file_name = file_name.replace(".txt", "_answer.txt")
+    with open(output_file_name, "w") as output_file:
+        output_file.write("Runge Romberg:\n")
+        output_file.write(f"Shooting: {shooting_er_rr}\n")
+        output_file.write(f"Finite difference: {finite_diff_er_rr}\n")
+        output_file.write("Exact:\n")
+        output_file.write(f"Shooting: {shooting_er_ma}\n")
+        output_file.write(f"Finite difference: {finite_diff_er_ma}\n")
 
-    h2 = h / 2
-    y1_2 = shooting_method(ddf, borders, bcondition1, bcondition2, h2, f)
-    y2_2 = finite_difference_method(ddf, f, bcondition1, bcondition2, equation, borders, h2)
-
-    print("Runge Rombert errors:")
-    print("Shooting method:", sqr_error(y1, runge_rombert(y1, y1_2, h, h2, 1)))
-    print("Finite difference method:", sqr_error(y2, runge_rombert(y2, y2_2, h, h2, 1)))
-    print()
-
-    print("Exact solution errors:")
-    print("Shooting method:", sqr_error(y1, y))
-    print("Finite difference method:", sqr_error(y2, y))
-    print()
-
-    # plt.figure(figsize=(12, 7))
-    # plt.plot(x, y, label='Exact')
-    # plt.plot(x, y1, label='Shooting')
-    # plt.plot(x, y2, label='Finite difference')
-    # plt.grid()
-    # plt.title('04-02')
-    # plt.legend()
-    # plt.show()
-
-    # output_file_name = file_name.replace(".txt", "_answer.txt")
-    # with open(output_file_name, "w") as output_file:
-    #     output_file.write(f"h = {h}\n")
-    #     output_file.write(f"Euler: {error(y_euler, y_exact_for_euler)}\n")
-    #     output_file.write(f"Implicit Euler: {error(y_i_euler, y_exact)}\n")
-    #     output_file.write(f"Runge Kutta: {error(y_runge, y_exact)}\n")
-    #     output_file.write(f"Adams: {error(y_adams, y_exact)}\n")
-    #     output_file.write(f"h = {h/2}\n")
-    #     output_file.write(f"Euler: {error(y_euler2, y_exact2_for_euler)}\n")
-    #     output_file.write(f"Implicit Euler: {error(y_i_euler2, y_exact2)}\n")
-    #     output_file.write(f"Runge Kutta: {error(y_runge2, y_exact2)}\n")
-    #     output_file.write(f"Adams: {error(y_adams2, y_exact2)}\n\n")
-    #     output_file.write(f"Runge Romberg:\n")
-    #     output_file.write(f"Euler: {runge_rombert(h, h / 2, y_euler, y_euler2, 4)}\n")
-    #     output_file.write(f"Implicit Euler: {runge_rombert(h, h/2, y_i_euler, y_i_euler2, 4)}\n")
-    #     output_file.write(f"Runge Kutta: {runge_rombert(h, h / 2, y_runge, y_runge2, 4)}\n")
-    #     output_file.write(f"Adams: {runge_rombert(h, h / 2, y_adams, y_adams2, 4)}\n")
-
-    # print("Результаты записаны в файл:", output_file_name)
+    print("Результаты записаны в файл:", output_file_name)
 
 main()
