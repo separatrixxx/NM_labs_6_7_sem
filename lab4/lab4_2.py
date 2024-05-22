@@ -11,6 +11,7 @@ def runge_kutta_method(f, g, l, r, h, y0, z0):
     x[0] = l
     y[0] = y0
     z[0] = z0
+    
     for i in range(n-1):
         K1 = h * f(x[i], y[i], z[i])
         L1 = h * g(x[i], y[i], z[i])
@@ -25,38 +26,24 @@ def runge_kutta_method(f, g, l, r, h, y0, z0):
         x[i + 1] = x[i] + h
         y[i + 1] = y[i] + dy
         z[i + 1] = z[i] + dz
-    return x, y, z
-
-def adams_method(f, g, l, r, h, y0, z0):
-    n = int((r - l) / h) + 1
-    x_start, y_start, z_start = runge_kutta_method(f, g, l, l + 4 * h, h, y0, z0)
-    x = [0] * n
-    y = [0] * n
-    z = [0] * n
-    x[:4] = x_start
-    y[:4] = y_start
-    z[:4] = z_start
-    for i in range(3, n-1):
-        x[i + 1] = x[i] + h
-
-        y[i + 1] = y[i] + h / 24 * (55 * f(x[i], y[i], z[i]) - 59 * f(x[i - 1], y[i - 1], z[i - 1]) +
-                    37 * f(x[i - 2], y[i - 2], z[i - 2]) - 9 * f(x[i - 3], y[i - 3], z[i - 3]))
-        z[i + 1] = z[i] + h / 24 * (55 * g(x[i], y[i], z[i]) - 59 * g(x[i - 1], y[i - 1], z[i - 1]) +
-                    37 * g(x[i - 2], y[i - 2], z[i - 2]) - 9 * g(x[i - 3], y[i - 3], z[i - 3]))
 
     return x, y, z
 
 def runge_romberg(y1, y2, k, p):
     res = 0
     c = 1 / (k ** p + 1)
+
     for i in range(len(y1)):
         res = max(res, c * abs(y1[i] - y2[i*k]))
+
     return res
 
 def max_abs_error(y1, y2):
     res = 0
+
     for i in range(len(y1)):
         res = max(res, abs(y1[i] - y2[i]))
+
     return res
 
 def tridiagonal_solve(a, b, c, d) -> np.ndarray:
@@ -73,8 +60,10 @@ def tridiagonal_solve(a, b, c, d) -> np.ndarray:
         q[i] = (d[i] - a[i]*q[i-1]) / (b[i] + a[i]*p[i-1])
 
     x[-1] = q[-1]
+
     for i in range(n-2, -1, -1):
         x[i] = p[i] * x[i+1] + q[i]
+
     return x
 
 def shooting_method(f, g, a, b, h, alpha, beta, delta, gamma, y0, y1, eta0, eta1, eps):
@@ -82,8 +71,8 @@ def shooting_method(f, g, a, b, h, alpha, beta, delta, gamma, y0, y1, eta0, eta1
         return (y0 - alpha * eta) / beta
 
     while True:
-        _, y_s0, z_s0 = adams_method(f, g, a, b, h, eta0, get_z0(eta0))
-        x_s1, y_s1, z_s1 = adams_method(f, g, a, b, h, eta1, get_z0(eta1))
+        _, y_s0, z_s0 = runge_kutta_method(f, g, a, b, h, eta0, get_z0(eta0))
+        x_s1, y_s1, z_s1 = runge_kutta_method(f, g, a, b, h, eta1, get_z0(eta1))
 
         phi0 = delta * y_s0[-1] + gamma * z_s0[-1] - y1
         phi1 = delta * y_s1[-1] + gamma * z_s1[-1] - y1
@@ -106,6 +95,7 @@ def finite_difference_method(f, p, q, l, r, h, alpha, beta, delta, gamma, y0_, y
     a[-1] = -gamma
     b[-1] = h * delta + gamma
     d[-1] = h * y1_
+
     for i in range(1, n):
         if xk[i] == 0:
             a[i] = 1
@@ -123,10 +113,15 @@ def finite_difference_method(f, p, q, l, r, h, alpha, beta, delta, gamma, y0_, y
 def main():   
     f = lambda x, y, z: z
     fx = lambda x: 0
-    g = lambda x, y, z: (-4 * x * z + 4 * y) / (2 * x + 1)
-    p = lambda x: 4 * x / (2 * x + 1) if 2 * x + 1 != 0 else 0
-    q = lambda x: -4 / (2 * x + 1) if 2 * x + 1 != 0 else 0
-    real_f = lambda x: 3 * x + np.exp(-2 * x)
+    # g = lambda x, y, z: (-4 * x * z + 4 * y) / (2 * x + 1)
+    # p = lambda x: 4 * x / (2 * x + 1) if 2 * x + 1 != 0 else 0
+    # q = lambda x: -4 / (2 * x + 1) if 2 * x + 1 != 0 else 0
+    # real_f = lambda x: 3 * x + np.exp(-2 * x)
+
+    g = lambda x, y, z: ((2 * x + 1) * z - 2 * y) / x if x != 0 else 0
+    p = lambda x: (-(2 * x + 1) / x) if x != 0 else 0
+    q = lambda x: (2 / x) if x != 0 else 0
+    real_f = lambda x: np.exp(2 * x)
 
     a = int(input())
     b = int(input())
@@ -134,8 +129,8 @@ def main():
     beta = int(input())
     delta = int(input())
     gamma = int(input())
-    y0 = int(input())
-    y1 = int(input())
+    y0 = 2
+    y1 = np.exp(2)
     h = float(input())
     eps = float(input())
     eta0 = float(input())

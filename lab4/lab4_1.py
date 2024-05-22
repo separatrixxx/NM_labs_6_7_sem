@@ -8,9 +8,11 @@ def euler(f, g, y0, z0, borders, h):
     x = [i for i in np.arange(l, r + h, h)]
     y = [y0]
     z = z0
+
     for i in range(len(x) - 1):
         z += h * f(x[i], y[i], z)
         y.append(y[i] + h * g(x[i], y[i], z))
+        
     return x, y
 
 def runge_kutta(f, g, y0, z0, borders, h, return_z=False):
@@ -18,6 +20,7 @@ def runge_kutta(f, g, y0, z0, borders, h, return_z=False):
     x = [i for i in np.arange(l, r + h, h)]
     y = [y0]
     z = [z0]
+
     for i in range(len(x) - 1):
         K1 = h * g(x[i], y[i], z[i])
         L1 = h * f(x[i], y[i], z[i])
@@ -31,6 +34,7 @@ def runge_kutta(f, g, y0, z0, borders, h, return_z=False):
         delta_z = (L1 + 2 * L2 + 2 * L3 + L4) / 6
         y.append(y[i] + delta_y)
         z.append(z[i] + delta_z)
+
     if not return_z:
         return x, y
     else:
@@ -42,22 +46,29 @@ def adams(f, g, y0, z0, borders, h):
     x = x_runge
     y = y_runge[:4]
     z = z_runge[:4]
+
     for i in range(3, len(x_runge) - 1):
         z_i = z[i] + h * (55 * f(x[i], y[i], z[i]) -
-                          59 * f(x[i - 1], y[i - 1], z[i - 1]) +
-                          37 * f(x[i - 2], y[i - 2], z[i - 2]) -
-                          9 * f(x[i - 3], y[i - 3], z[i - 3])) / 24
+            59 * f(x[i - 1], y[i - 1], z[i - 1]) +
+            37 * f(x[i - 2], y[i - 2], z[i - 2]) -
+            9 * f(x[i - 3], y[i - 3], z[i - 3])) / 24
+        
         z.append(z_i)
+
         y_i = y[i] + h * (55 * g(x[i], y[i], z[i]) -
-                          59 * g(x[i - 1], y[i - 1], z[i - 1]) +
-                          37 * g(x[i - 2], y[i - 2], z[i - 2]) -
-                          9 * g(x[i - 3], y[i - 3], z[i - 3])) / 24
+            59 * g(x[i - 1], y[i - 1], z[i - 1]) +
+            37 * g(x[i - 2], y[i - 2], z[i - 2]) -
+            9 * g(x[i - 3], y[i - 3], z[i - 3])) / 24
+        
         y.append(y_i)
+
     return x, y
 
 def runge_rombert(h1, h2, y1, y2, p):
     assert h1 == h2 * 2
+
     norm = 0
+
     for i in range(len(y1)):
         norm += (y1[i] - y2[i * 2]) ** 2
     return norm ** 0.5 / (2 ** p + 1)
