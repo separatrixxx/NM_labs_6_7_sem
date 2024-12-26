@@ -119,7 +119,7 @@ def lanczos_method(A, num_eigenvalues):
     
     return lanczos.run()
 
-# Собственная реализация QR-алгоритма для точного решения задачи собственных значений
+# Собственная реализация QR-алгоритма для точного решения задачи поиска собственных значений
 def qr_eigenvalues(A, max_iter=1000, tol=1e-10):
     """
     Реализация QR-алгоритма для вычисления собственных значений симметричной матрицы.
@@ -129,12 +129,15 @@ def qr_eigenvalues(A, max_iter=1000, tol=1e-10):
     tol: Допуск для остановки
     """
     A = A.copy()
+
     for _ in range(max_iter):
         Q, R = np.linalg.qr(A)
         A = R @ Q
         off_diagonal = np.sum(np.abs(np.tril(A, -1)))
+
         if off_diagonal < tol:
             break
+
     eigvals = np.diag(A)
 
     return eigvals
@@ -143,6 +146,7 @@ def qr_eigenvalues(A, max_iter=1000, tol=1e-10):
 def read_matrix_from_file(filename):
     with open(filename, 'r', encoding='utf-8') as f:
         lines = f.readlines()
+
     matrix_data = [list(map(float, line.split())) for line in lines]
 
     return csr_matrix(np.array(matrix_data))
@@ -161,6 +165,7 @@ def calculate_errors(true_vals, approx_vals):
     
     return eigval_errors
 
+# Функция для построения графиков
 def plot_eigenvalues(true_vals, approx_vals, num_eigenvalues):
     """
     Строит график для сравнения собственных значений.
@@ -216,5 +221,4 @@ def main():
             f.write(f"Собственные значения (точные): {true_vals}\n")
             f.write(f"Ошибка для СЗ: {eigval_errors}\n")
 
-if __name__ == "__main__":
-    main()
+main()    
